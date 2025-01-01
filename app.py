@@ -66,7 +66,16 @@ def get_gemini_response(predicted_label):
 
 # Function to check if the input contains symptom-related terms
 def contains_symptom_keywords(query):
-    symptom_keywords = ["thirst", "urination", "fatigue", "weight loss", "vision", "wounds", "healing", "blurred vision", "slow-healing"]
+    symptom_keywords = [
+        "thirst", "urination", "fatigue", "weight loss", "vision", "wounds", "healing", "blurred vision", "slow-healing",
+        "headache", "fever", "joint pain", "rash", "nausea", "vomiting", "muscle pain", "cough", "chest pain", 
+        "abdominal pain", "shortness of breath", "swelling", "dizziness", "loss of appetite", "diarrhea", "jaundice",
+        "dark urine", "skin lesions", "numbness", "pain during intercourse", "pelvic pain", "leg cramps", "hydrophobia",
+        "swollen lymph nodes", "wheezing", "difficulty swallowing", "hoarseness", "sore throat", "stiff neck", 
+        "body aches", "irregular heartbeat", "diabetic", "immune system", "contagious", "muscle weakness", "weight gain",
+        "blood in sputum", "persistent cough", "loss of sensation", "blurry vision", "irritability", "delayed growth"
+    ]
+    
     query = query.lower()
     return any(keyword in query for keyword in symptom_keywords)
 
