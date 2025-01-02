@@ -1,34 +1,20 @@
+
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
 import streamlit as st
 import pickle
 import re
 import requests
 import json
-import os
+import concurrent.futures
 
-# Get the base path of the current script to avoid path issues
-base_path = os.path.dirname(__file__)  # Get the directory of the current file
-model_path = os.path.join(base_path, 'logistic_regression_model.pkl')
-tfidf_path = os.path.join(base_path, 'tfidf_vectorizer.pkl')
+with open('logistic_regression_model.pkl', 'rb') as model_file:
+    loaded_model = pickle.load(model_file)
 
-# Function to load the model and tfidf vectorizer
-def load_files():
-    try:
-        # Load the model and TFIDF vectorizer from the file system
-        with open(model_path, 'rb') as model_file:
-            loaded_model = pickle.load(model_file)
-        with open(tfidf_path, 'rb') as tfidf_file:
-            loaded_tfidf = pickle.load(tfidf_file)
-        return loaded_model, loaded_tfidf
-    except FileNotFoundError:
-        st.error(f"Files not found at {base_path}.")
-        return None, None
-
-# Load the model and tfidf vectorizer
-loaded_model, loaded_tfidf = load_files()
-
-# Ensure the model is loaded before proceeding
-if not loaded_model or not loaded_tfidf:
-    st.stop()
+with open('tfidf_vectorizer.pkl', 'rb') as tfidf_file:
+    loaded_tfidf = pickle.load(tfidf_file)
 
 def preprocess_input_text(input_text):
     processed_text = []
@@ -45,6 +31,8 @@ def get_model_response(user_input):
     new_text_tfidf = loaded_tfidf.transform(processed_text)
     
     predicted_label = loaded_model.predict(new_text_tfidf)
+    
+    
     return predicted_label[0]
 
 def get_gemini_response(predicted_label):
@@ -124,5 +112,7 @@ if prompt:
         st.chat_message("SymptomScout").markdown(gemini_response)
         st.session_state.messages.append({'role': 'SymptomScout', 'content': gemini_response})
     else:
+        
         st.chat_message("SymptomScout").markdown("Please enter your symptoms so I can assist you better. I am a medical-focused AI here to help!")
         st.session_state.messages.append({'role': 'SymptomScout', 'content': "Please enter your symptoms so I can assist you better. I am a medical-focused AI here to help!"})
+
