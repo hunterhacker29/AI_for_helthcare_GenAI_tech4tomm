@@ -90,7 +90,7 @@ def contains_symptom_keywords(query):
         "dark urine", "skin lesions", "numbness", "pain during intercourse", "pelvic pain", "leg cramps", "hydrophobia",
         "swollen lymph nodes", "wheezing", "difficulty swallowing", "hoarseness", "sore throat", "stiff neck", 
         "body aches", "irregular heartbeat", "diabetic", "immune system", "contagious", "muscle weakness", "weight gain",
-        "blood in sputum", "persistent cough", "loss of sensation", "blurry vision", "irritability", "delayed growth"
+        "blood in sputum", "persistent cough", "loss of sensation", "blurry vision", "irritability", "delayed growth","ache","aches","arm", "leg", "pain"
     ]
     
     query = query.lower()
