@@ -118,6 +118,8 @@
 
 
 
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''#####################################################
+
 
 
 import streamlit as st
@@ -180,7 +182,7 @@ def get_gemini_response(predicted_label):
         'Content-Type': 'application/json',
     }
 
-    user_input = f"Predicted label: {predicted_label}. Give some info about this and suggest remedies, home remedies to cure this, and provide recommendations on managing it."
+    user_input = f"Predicted label: {predicted_label}. Give some home remedies and consulting to cure this disease"
 
     data = {
         "contents": [{
@@ -233,21 +235,29 @@ if prompt:
     st.session_state.messages.append({'role': 'user', 'content': prompt})
 
     if contains_symptom_keywords(prompt):  # Check if the input contains symptoms
-        # Use ThreadPoolExecutor to run both tasks in parallel
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            # Run the model prediction and Gemini API call in parallel
-            future_label = executor.submit(get_model_response, prompt)
-            predicted_label = future_label.result()  # This will block until the prediction is done
-            
-            # Feed the predicted label to the API for information, remedies, and recommendations
-            future_gemini_response = executor.submit(get_gemini_response, predicted_label)
-            gemini_response = future_gemini_response.result()  # This will block until the response is ready
-        
-        st.chat_message("SymptomScout").markdown(f"Predicted label: {predicted_label}")
+        with st.spinner('Processing your request... Please wait while we analyze the symptoms.'):
+
+            # Use ThreadPoolExecutor to run both tasks in parallel
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                # Run the model prediction and Gemini API call in parallel
+                future_label = executor.submit(get_model_response, prompt)
+                predicted_label = future_label.result()  # This will block until the prediction is done
+                
+                # Feed the predicted label to the API for information, remedies, and recommendations
+                future_gemini_response = executor.submit(get_gemini_response, predicted_label)
+                gemini_response = future_gemini_response.result()  # This will block until the response is ready
+
+        # Append doctor and hospital details to the response shown to the user
+        doctor_info = f"\n\nDoctor Specialist in {predicted_label} Treatment:\n\nDr. Ravi Kumar\nSpecialization: Infectious Disease Specialist, {predicted_label} Treatment\nExperience: 10+ years in treating mosquito-borne diseases, specializing in dengue fever management.\nConsultation Fee: ₹1000 (Approx.)\nLocation: Fortis Healthcare, Marine Drive, Mumbai, Maharashtra, India.\nPhone: +91 98234 56789\n\nNearby Hospitals:\n\nBreach Candy Hospital\nAddress: Breach Candy, Mumbai, Maharashtra, India\nContact: +91 22 1234 5678\n\nJaslok Hospital\nAddress: 15, Dr. Deshmukh Marg, Mumbai, Maharashtra, India\nContact: +91 22 6660 1234\n\nKokilaben Dhirubhai Ambani Hospital\nAddress: Andheri West, Mumbai, Maharashtra, India\nContact: +91 22 4260 6000"
+
+        # Combine the Gemini response with the doctor details
+        final_response = gemini_response + doctor_info
+
+        st.chat_message("SymptomScout").markdown(f"Predicted label: It can be {predicted_label}")
         st.session_state.messages.append({'role': 'SymptomScout', 'content': f"Predicted label: {predicted_label}"})
-        
-        st.chat_message("SymptomScout").markdown(gemini_response)
-        st.session_state.messages.append({'role': 'SymptomScout', 'content': gemini_response})
+
+        st.chat_message("SymptomScout").markdown(final_response)
+        st.session_state.messages.append({'role': 'SymptomScout', 'content': final_response})
     else:
         st.chat_message("SymptomScout").markdown("Please enter your symptoms so I can assist you better. I am a medical-focused AI here to help!")
         st.session_state.messages.append({'role': 'SymptomScout', 'content': "Please enter your symptoms so I can assist you better. I am a medical-focused AI here to help!"})
