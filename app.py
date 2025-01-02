@@ -119,6 +119,7 @@
 
 
 
+
 import streamlit as st
 import pickle
 import re
@@ -126,6 +127,7 @@ import requests
 import json
 import io
 import concurrent.futures
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 # Define raw file URLs for the models
 model_url = "https://raw.githubusercontent.com/hunterhacker29/AI_for_helthcare_GenAI_tech4tomm/main/logistic_regression_model.pkl"
@@ -163,6 +165,8 @@ def preprocess_input_text(input_text):
 
 def get_model_response(user_input):
     processed_text = preprocess_input_text([user_input])
+    
+    # Ensure the vectorizer is transformed on the correctly preprocessed text
     new_text_tfidf = loaded_tfidf.transform(processed_text)
     
     predicted_label = loaded_model.predict(new_text_tfidf)
@@ -170,7 +174,7 @@ def get_model_response(user_input):
 
 def get_gemini_response(predicted_label):
     API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
-    API_KEY = "AIzaSyAWfOaA_zYrilK7uQeuC3Mh0552PaoMRzo"   # Replace with your actual API key
+    API_KEY = "AIzaSyAWfOaA_zYrilK7uQeuC3Mh0552PaoMRzo"  # Replace with your actual API key
 
     headers = {
         'Content-Type': 'application/json',
